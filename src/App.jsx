@@ -93,7 +93,7 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <div className="pure-u-1 container">
+        <div className="container">
           <div className="pure-g button-menu"> 
             <div className="pure-u-1-3">
               <button className="pure-button button-start" onClick={this.start}>Start</button>
@@ -102,7 +102,7 @@ class App extends Component {
             </div>
           </div>
           <hr/>
-          <div className="pure-u-1 tone-box-container">
+          <div className="tone-box-container">
             {this.renderChords()}
             <div id="Bar"></div>
             {this.renderToneBoxes()}
