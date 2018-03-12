@@ -10,11 +10,18 @@ body {
   width: 80%;
 }
 
-/*.tone-box-container {
-  margin: 0 auto;
-  margin-top: 15px;
-  width: 90%;
-}*/
+.row {
+  display: flex;
+  flex-flow: row wrap;
+}
+
+.tone-box-container {
+  margin-top: 10px;
+  -webkit-box-shadow: 0px 2px 6px 0.5px rgba(0,0,0,0.31);
+  -moz-box-shadow: 0px 2px 6px 0.5px rgba(0,0,0,0.31);
+  box-shadow: 0px 2px 6px 0.5px rgba(0,0,0,0.31);
+  border-radius: 4px;
+}
 
 .tone-box {
   border-style: solid !important;
@@ -22,10 +29,15 @@ body {
   background-color:#363c4f;
   border-width: thin;
   height: 34px;
+  width:22.5%;
+}
+
+.tone-box.left {
+  width:10%;
 }
 
 .box-top {
-  border-radius: 15px 15px 0 0;
+  /*border-radius: 15px 15px 0 0;*/
   text-align: center;
   border-color:#2A324B;
   color: white;
@@ -43,6 +55,7 @@ body {
 /* Buttons */
 .button-menu {
   margin-bottom: 10px;
+  position: relative;
 }
 
 .pure-button {
@@ -50,12 +63,29 @@ body {
   border-radius: 4px;
 }
 
-.button-start {
-  background: rgb(28, 184, 65); /* this is a green */
+.button-play-control {
+  width: 50px;
+  height: 50px;
+  position: absolute;
+  bottom: 0;
 }
 
-.button-stop {
-  background: rgb(202, 60, 60); /* this is a maroon */
+.play-control-container {
+  width: 50px;
+  height: 50px;
+}
+
+.material-icons.play-control {
+  font-size: 35px !important;
+}
+
+.progression-select {
+  margin: 0 10px 0 10px;
+  width: 180px;
+  padding: 5px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  height: 50px;
 }
 
 #Bar {
@@ -64,4 +94,5 @@ body {
   position: absolute;
   left: 0%;
   background-color: white;
+  visibility: hidden;
 }

@@ -82,7 +82,8 @@ class App extends Component {
 
     this.state = {
       'notes': [[], [], [], []],
-      'progression': [[], [], [], []]
+      'progression': [[], [], [], []],
+      'playStatus': 'idle'
     }
 
     this.reqFrame = null;
@@ -91,15 +92,17 @@ class App extends Component {
   }
 
   render() {
+    const playControl = this.state.playStatus === 'idle' ? 'play_arrow' : 'stop';
+
     return (
       <div className="App">
         <div className="container">
-          <div className="pure-g button-menu"> 
-            <div className="pure-u-1-3">
-              <button className="pure-button button-start" onClick={this.start}>Start</button>
-              <button className="pure-button button-stop" onClick={this.stop}>Stop</button>
-              {this.renderProgressions()}
+          <div className="row button-menu"> 
+            <div className="play-control-container">
+              <button className="button-play-control" onClick={this.handlePlayControl}><i className="material-icons play-control">{playControl}</i></button>
             </div>
+              {this.renderProgressions()}
+            
           </div>
           <hr/>
           <div className="tone-box-container">
@@ -114,9 +117,8 @@ class App extends Component {
 
   progressLoop() {
     this.reqFrame = requestAnimationFrame(this.progressLoop);
-
-    let progress = ((Tone.Transport.seconds / (Tone.Transport.loopEnd + 2.5))) + 0.15;
-    document.getElementById('Bar').style.left = (progress * 100).toFixed(2) + "%";
+    let progress = (Tone.Transport.seconds / Tone.Transport.loopEnd) + 0.25;
+    document.getElementById('Bar').style.left = (progress * 72).toFixed(2) + "%";
   }
 
   renderProgressions() {
@@ -129,7 +131,7 @@ class App extends Component {
     }
 
     return (
-      <select onChange={this.loadProgression}>
+      <select className="progression-select" onChange={this.loadProgression}>
         {rows}
       </select>
     )
@@ -138,31 +140,31 @@ class App extends Component {
   renderChords() {
 
     const chordProgressionRows = this.state.progression.map((numeral, i) => {
-      return (<div key={i} className="pure-u-1-5 tone-box box-top" data-measure={i}>{numeral}</div>);
+      return (<div key={i} className="tone-box box-top" data-measure={i}>{numeral}</div>);
     });
 
     return (
-      <div className="pure-g">
-        <div className="pure-u-1-8"></div>
+      <div className="row">
+        <div className="tone-box left"></div>
         {chordProgressionRows}
       </div>
-      )
+    );
   }
 
   renderToneBoxes() {
     return [...Array(13)].map((_, i) => {
 
-      let styleRight = (i === 12) ? {'borderRadius': '0px 0px 15px 0px'} : {};
-      let styleLeft = (i === 0) ? {'borderRadius': '15px 0px 0px 0px'} : {};
-      styleLeft = (i === 12) ? {'borderRadius': '0px 0px 0px 15px'} : styleLeft;
+      // let styleRight = (i === 12) ? {'borderRadius': '0px 0px 15px 0px'} : {};
+      // let styleLeft = (i === 0) ? {'borderRadius': '15px 0px 0px 0px'} : {};
+      // styleLeft = (i === 12) ? {'borderRadius': '0px 0px 0px 15px'} : styleLeft;
       
       return (
-        <div key={i} data-index={12-i} className="pure-g">
-          <div className="pure-u-1-8 tone-box left" style={styleLeft}>{noteLookupDisplay[12-i]}</div>
-          <div id={1+'-'+noteLookup[12-i]} className="pure-u-1-5 tone-box" data-measure={1} onClick={this.hitTone}></div>
-          <div id={2+'-'+noteLookup[12-i]} className="pure-u-1-5 tone-box" data-measure={2} onClick={this.hitTone}></div>
-          <div id={3+'-'+noteLookup[12-i]} className="pure-u-1-5 tone-box" data-measure={3} onClick={this.hitTone}></div>
-          <div id={4+'-'+noteLookup[12-i]} className="pure-u-1-5 tone-box" style={styleRight} data-measure={4} onClick={this.hitTone}></div>
+        <div key={i} data-index={12-i} className="row">
+          <div className="tone-box left">{noteLookupDisplay[12-i]}</div>
+          <div id={1+'-'+noteLookup[12-i]} className="tone-box" data-measure={1} onClick={this.hitTone}></div>
+          <div id={2+'-'+noteLookup[12-i]} className="tone-box" data-measure={2} onClick={this.hitTone}></div>
+          <div id={3+'-'+noteLookup[12-i]} className="tone-box" data-measure={3} onClick={this.hitTone}></div>
+          <div id={4+'-'+noteLookup[12-i]} className="tone-box" data-measure={4} onClick={this.hitTone}></div>
         </div>
       )
     });
@@ -212,7 +214,6 @@ class App extends Component {
         } else {
           synth.triggerAttackRelease(notes[i], "1m");
         }
-        console.log(i);
         this.initDraw(time, i, notes);
       }.bind(this), i + "m");
     }
@@ -266,18 +267,23 @@ class App extends Component {
     return notes.filter(n => n.length !== 0).length === 0;
   }
 
-  start() {
-    if (this.notesAreEmpty()) return; 
+  handlePlayControl() {
+    const { playStatus } = this.state;
 
-    Tone.Transport.start();
-    this.reqFrame = requestAnimationFrame(this.progressLoop);
-  }
+    if (playStatus === 'active') {
+      Tone.Transport.stop();
+      cancelAnimationFrame(this.reqFrame);
+      document.getElementById('Bar').style.visibility = "hidden";
+      this.colorNotes(this.state.notes);
+      document.getElementById('Bar').style.left = "0%";
+    } else if (playStatus === 'idle') {
+      if (this.notesAreEmpty()) return;
+      Tone.Transport.start();
+      document.getElementById('Bar').style.visibility = "visible";
+      this.reqFrame = requestAnimationFrame(this.progressLoop); 
+    }
 
-  stop() {
-    Tone.Transport.stop();
-    cancelAnimationFrame(this.reqFrame);
-    this.colorNotes(this.state.notes);
-    document.getElementById('Bar').style.left = "0%";
+    this.setState({'playStatus': playStatus === 'idle' ? 'active' : 'idle'});
   }
 }
 
